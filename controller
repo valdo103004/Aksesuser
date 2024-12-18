@@ -1,0 +1,53 @@
+package controller;
+
+import model.User;
+import model.AccessLog;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
+public class LoginController {
+    private List<User> users;
+    private List<AccessLog> accessLogs;
+    private User loggedInUser;
+    private AccessLog currentLog;
+
+    public LoginController() {
+        users = new ArrayList<>();
+        accessLogs = new ArrayList<>();
+        users.add(new User("admin", "admin123"));
+        users.add(new User("user1", "user123"));
+    }
+
+    public boolean login(String username, String password) {
+        for (User user : users) {
+            if (user.getUsername().equals(username) && user.getPassword().equals(password)) {
+                loggedInUser = user;
+                currentLog = new AccessLog(username, LocalDateTime.now(), "Login");
+                accessLogs.add(currentLog);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void logout() {
+        if (loggedInUser != null) {
+            currentLog.setLogoutTime(LocalDateTime.now());
+            loggedInUser = null;
+            currentLog = null;
+        }
+    }
+
+    public void recordActivity(String activity) {
+        if (loggedInUser != null) {
+            currentLog = new AccessLog(loggedInUser.getUsername(), LocalDateTime.now(), activity);
+            accessLogs.add(currentLog);
+        }
+    }
+
+    public List<AccessLog> getAccessLogs() {
+        return accessLogs;
+    }
+}
