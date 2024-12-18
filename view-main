@@ -1,0 +1,70 @@
+package view;
+
+import controller.LoginController;
+import javafx.application.Application;
+import javafx.scene.Scene;
+import javafx.scene.control.*;
+import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
+import model.AccessLog;
+
+public class Main extends Application {
+    private LoginController loginController;
+
+    public static void main(String[] args) {
+        launch(args);
+    }
+
+    @Override
+    public void start(Stage primaryStage) {
+        loginController = new LoginController();
+
+        TextField usernameField = new TextField();
+        usernameField.setPromptText("Username");
+        PasswordField passwordField = new PasswordField();
+        passwordField.setPromptText("Password");
+        Button loginButton = new Button("Login");
+        Button logoutButton = new Button("Logout");
+        Button activityButton = new Button("Record Activity");
+        Button viewLogButton = new Button("View Access Log");
+        TextArea logArea = new TextArea();
+        logArea.setEditable(false);
+
+        loginButton.setOnAction(event -> {
+            String username = usernameField.getText();
+            String password = passwordField.getText();
+            if (loginController.login(username, password)) {
+                logArea.appendText("Login successful\n");
+                loginController.recordActivity("Logged in");
+            } else {
+                logArea.appendText("Invalid credentials\n");
+            }
+        });
+
+        logoutButton.setOnAction(event -> {
+            loginController.logout();
+            logArea.appendText("Logged out\n");
+        });
+
+        activityButton.setOnAction(event -> {
+            loginController.recordActivity("Performed an activity");
+            logArea.appendText("Activity recorded\n");
+        });
+
+        viewLogButton.setOnAction(event -> {
+            logArea.appendText("\nAccess Logs:\n");
+            for (AccessLog log : loginController.getAccessLogs()) {
+                logArea.appendText(log.toString() + "\n");
+            }
+        });
+
+        // Layout
+        VBox layout = new VBox(10, usernameField, passwordField, loginButton, logoutButton, activityButton, viewLogButton, logArea);
+        Scene scene = new Scene(layout, 300, 400);
+
+        primaryStage.setTitle("Point of Sale System");
+        primaryStage.setScene(scene);
+        primaryStage.show();
+    }
+}
+
